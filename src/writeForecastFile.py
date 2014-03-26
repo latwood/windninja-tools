@@ -47,10 +47,18 @@ if __name__ == '__main__':
 #ext = '.grb2'
 
 fout = open("forecast_list.txt", 'w')
+lst = list()
 
 for file in os.listdir("/media/Elements/NAM/201006"):
     if file.endswith(ext):
-        line = fdir + '/' + file + '\n'        
-        fout.write(line)
+        lst.append(file)
+        lst.sort()
+        
+for f in lst:
+    line = fdir + '/' + f + '\n'  
+    fout.write(line)
 
 fout.close()
+
+
+
