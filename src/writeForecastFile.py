@@ -49,7 +49,7 @@ if __name__ == '__main__':
 fout = open("forecast_list.txt", 'w')
 lst = list()
 
-for file in os.listdir("/media/Elements/NAM/201006"):
+for file in os.listdir(fdir):
     if file.endswith(ext):
         lst.append(file)
         lst.sort()
