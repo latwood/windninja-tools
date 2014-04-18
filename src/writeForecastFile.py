@@ -55,7 +55,7 @@ for file in os.listdir(fdir):
         lst.sort()
         
 for f in lst:
-    line = fdir + '/' + f + '\n'  
+    line = fdir + f + '\n'  
     fout.write(line)
 
 fout.close()
