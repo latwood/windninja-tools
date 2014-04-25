@@ -75,11 +75,10 @@ sensorList <- list("R26")
 notSensorList <- list("R26")
 
 #===time series plots====
-timeDf <- wnBuildTsDf(data, sensorList=sensorList)
 
-sub <- subset(data, subset=(datetime > '2010-Jun-14' & datetime < '2010-Jun-30'))
-timeDf <- wnBuildTsDf(sub)
-wnPlotSpeedTs(timeDf)
+timeDf <- wnBuildTsDf(data)
+sub <- subset(timeDf, subset=(months(datetime) == 'September'))
+wnPlotSpeedTs(sub)
 
 wnPlotDirTs(timeDf)
 
