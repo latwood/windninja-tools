@@ -71,16 +71,31 @@ l2 <- list("NAM", "WRFNARR") #list of forecast names
 
 data<-wnBuildBiasDf(l, l2) #build main df
 
-sensorList <- list("R26")
-notSensorList <- list("R26")
+#sensorList <- list("R26")
+#notSensorList <- list("R26")
 
 #===time series plots====
 
 timeDf <- wnBuildTsDf(data)
-sub <- subset(timeDf, subset=(months(datetime) == 'September'))
-wnPlotSpeedTs(sub)
 
-wnPlotDirTs(timeDf)
+dtmin <- as.POSIXct(strptime("2010-07-14 00:00:00", '%Y-%m-%d %H:%M:%S'))
+dtmax <- as.POSIXct(strptime("2010-07-19 00:00:00", '%Y-%m-%d %H:%M:%S'))
+sub <- subset(timeDf, subset=(datetime < dtmax & datetime > dtmin))
+
+#option xscale arg
+xscale<-scale_x_datetime(breaks=c(min(sub$datetime)+12*60*60,
+                       min(sub$datetime)+12*3*60*60,
+                       min(sub$datetime)+12*5*60*60,
+                       min(sub$datetime)+12*7*60*60,
+                       min(sub$datetime)+12*9*60*60))
+
+wnPlotSpeedTs(sub, xscale=xscale)
+
+
+sub <- subset(timeDf, subset=(months(datetime) == 'June'))
+wnPlotDirTs(sub)
+
+wnPlotSpeedTs(sub)
 
 #===box plots====
 box <- wnBoxplot(data, 'bias_speed', TRUE)
@@ -90,7 +105,10 @@ color_list <- c("darkorange", "red", "darkgreen", "darkblue")
 
 t <- wnPlotBiasVsObs(data, 'speed')
 
-sub <- subset(data, subset=(datetime > '2010-Jun-14' & datetime < '2010-Jun-30' & plot != 'R26'))
+sub <- subset(timeDf, subset=(months(datetime) == 'September'))
+
+sub <- subset(data, subset=(datetime > '2010-Aug-15' & datetime < '2010-Aug-31'))
+
 t <- wnPlotObsVsPred(sub, 'speed', color_list=color_list)
 
 
