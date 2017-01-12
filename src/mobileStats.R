@@ -1,0 +1,114 @@
+library(ggplot2)
+library(ggmap)
+
+#----------------------------------
+# Update local log files
+#----------------------------------
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/logs/stats.log /home/natalie/windninja_mobile/stats.log")
+
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/logs/registrations.log /home/natalie/windninja_mobile/registrations.log")
+
+#rm spaces from email addresses
+system("sed -ie 's/ @/@/g' registrations.log")
+
+#----------------------------------
+# Track users
+#----------------------------------
+
+d<-read.table('registrations.log', skip=1, stringsAsFactors=FALSE)
+dd<-subset(d, select=c(V6, V7, V8, V9))
+datetime<-with(dd, paste0(V6, " ", V7, " ",  V8, " ", "2016"))
+ddd<-as.data.frame(cbind(datetime,as.numeric(row.names(d))), stringsAsFactors=FALSE)
+colnames(ddd)<-c("datetime","install") 
+ddd[,"datetime"] <- as.POSIXct(strptime(ddd[,"datetime"], '%b %d %H:%M %Y'))
+
+d.sub<-subset(ddd, subset=(datetime > as.POSIXct(strptime("2016-07-27 00:00:00", '%Y-%m-%d %H:%M:%S')))) 
+d.sub$install<-as.numeric(d.sub$install)
+
+p<-ggplot(d.sub, aes(x=datetime, y=install)) +
+    geom_point(shape=19, size=1.5, alpha = 1) +
+    geom_line() +
+    xlab("") + ylab("") +
+    theme_bw() +
+    ggtitle("WindNinja-Mobile Installs")
+
+#p<- p + annotate(geom="text", x=as.POSIXct(strptime("2016-07-27 22:00:00", '%Y-%m-%d %H:%M:%S')), y=100, label="Total runs: 78", color="blue")
+#p<- p + annotate(geom="text", x=as.POSIXct(strptime("2016-07-27 22:00:00", '%Y-%m-%d %H:%M:%S')), y=95, label="Bug reports: 0", color="blue")
+#p<- p + annotate(geom="text", x=as.POSIXct(strptime("2016-07-27 22:00:00", '%Y-%m-%d %H:%M:%S')), y=90, label="Other feedback: 3", color="blue")
+
+#write the image to disk
+png("registrations.png", width=600, height=600, res=120)
+print(p)
+dev.off()
+
+#----------------------------------
+# Track simulations
+#----------------------------------
+
+s<-read.table('stats.log', stringsAsFactors=FALSE)
+ss<-subset(s, select=c(V2,V16,V19,V22,V25,V28,V40,V48))
+colnames(ss)<-c("user","xmax","xmin","ymax","ymin","forecast","datetime","job_id") 
+ss$runs<-as.numeric(row.names(ss))
+
+ss$xmax = substr(ss$xmax,1,nchar(ss$xmax)-1)
+ss$xmin = substr(ss$xmin,1,nchar(ss$xmin)-1)
+ss$ymax = substr(ss$ymax,1,nchar(ss$ymax)-1)
+ss$ymin = substr(ss$ymin,1,nchar(ss$ymin)-2)
+ss$datetime = substr(ss$datetime,3,nchar(ss$datetime))
+
+ss$datetime<-as.POSIXct(strptime(ss$datetime, '%Y-%m-%dT%H:%M:%S', tz="GMT"))  
+ss$date<-as.POSIXct(strptime(ss$datetime, '%Y-%m-%d', tz="GMT"))    
+
+s.sub<-subset(ss, subset=(datetime > as.POSIXct(strptime("2016-07-27 00:00:00", '%Y-%m-%d %H:%M:%S')))) 
+
+#p<-ggplot(s.sub, aes(x=datetime, y=runs)) +
+#    geom_point(shape=19, size=1.5, alpha = 1) +
+#    geom_line() +
+#    xlab("Time") + ylab("Simulations") +
+#    theme_bw() +
+#    ggtitle("WindNinja-Mobile Simulations")
+
+p<-ggplot(s.sub, aes(date, fill=forecast)) +
+    geom_bar() +
+    labs(fill="") +
+    xlab("Time") + ylab("Simulations") +
+    theme_bw() +
+    ggtitle("WindNinja-Mobile Simulations")
+
+p<- p + theme(legend.position=c(0.9,0.9))
+
+#p<-p + theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+#write the image to disk
+png("simulations.png", width=964, height=480, res=72)
+print(p)
+dev.off()
+
+#-------------------------------------
+#  Map geographic use  
+#-------------------------------------
+s.sub$ymin<-as.numeric(s.sub$ymin)
+s.sub$xmin<-as.numeric(s.sub$xmin)
+
+#map<-get_map(location = c(lon = -113.04, lat = 43.38), zoom = 3, maptype = 'terrain')
+map<-get_map(location = c(lon = -97.04, lat = 42.38), zoom = 4, maptype = 'terrain')
+
+m <- ggmap(map) + geom_point(data=s.sub, aes(x=xmin, y=ymin), alpha=0.4, colour = "red", size = 1) +
+        xlab("") + ylab("") 
+
+#write the image to disk
+png("usage_map.png", width=600, height=600, res=120)
+print(m)
+dev.off()
+
+#-------------------------------------
+#  scp images to aws
+#-------------------------------------
+
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/simulations.png ubuntu@ec2-52-222- 19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
+
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/registration.png ubuntu@ec2-52-222- 19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
+
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/usage_map.png ubuntu@ec2-52-222- 19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
+
+
