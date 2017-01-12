@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 library(ggplot2)
 library(ggmap)
 
@@ -105,10 +107,10 @@ dev.off()
 #  scp images to aws
 #-------------------------------------
 
-system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/simulations.png ubuntu@ec2-52-222- 19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/simulations.png ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
 
-system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/registration.png ubuntu@ec2-52-222- 19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/registrations.png ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
 
-system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/usage_map.png ubuntu@ec2-52-222- 19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/usage_map.png ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
 
 
