@@ -63,6 +63,12 @@ ss$date<-as.POSIXct(strptime(ss$datetime, '%Y-%m-%d', tz="GMT"))
 
 s.sub<-subset(ss, subset=(datetime > as.POSIXct(strptime("2016-07-27 00:00:00", '%Y-%m-%d %H:%M:%S')))) 
 
+#rm developer runs
+s.sub<-subset(ss, subset=(!(user %in% c("nwagenbrenner@gmail.com",
+                                      "jforthofer@gmail.com",
+                                      "tweber@yourdatasmarter.com",
+                                      "fspataro@yourdatasmarter.com"))))
+
 #p<-ggplot(s.sub, aes(x=datetime, y=runs)) +
 #    geom_point(shape=19, size=1.5, alpha = 1) +
 #    geom_line() +
@@ -98,9 +104,38 @@ map<-get_map(location = c(lon = -97.04, lat = 42.38), zoom = 4, maptype = 'terra
 m <- ggmap(map) + geom_point(data=s.sub, aes(x=xmin, y=ymin), alpha=0.4, colour = "red", size = 1) +
         xlab("") + ylab("") 
 
+#subset runs done within some recent times
+currentTime<-Sys.time()
+attr(currentTime, "tzone") <- "UTC"
+
+s.sub.lastDay<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 24))
+hoursSince<-24
+s.sub.lastDay<-cbind(s.sub.lastDay,hoursSince)
+s.sub.lastTwoDays<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 48 &
+                                         !(s.sub$date %in% s.sub.lastDay$date)))
+hoursSince<-48
+s.sub.lastTwoDays<-cbind(s.sub.lastTwoDays,hoursSince)
+s.sub.lastWeek<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 168 &
+                                      !(s.sub$date %in% s.sub.lastTwoDays$date)))
+hoursSince<-168
+s.sub.lastWeek<-cbind(s.sub.lastWeek,hoursSince)
+
+s.sub.recent<-rbind(s.sub.lastDay,s.sub.lastTwoDays,s.sub.lastWeek)
+
+m.recent <- ggmap(map) + 
+            geom_point(data=s.sub.recent, aes(x=xmin, y=ymin, color=as.factor(hoursSince)),
+            alpha=0.5, size = 2) + xlab("") + ylab("") +
+            scale_color_manual(values=c("blue", "purple", "red"),labels=c("< 1 week", "< 2 days", "< 24 hrs")) 
+
+m.recent <- m.recent + theme(legend.position=c(0.8,0.9)) + labs(color="Time Since Run")
+
 #write the image to disk
 png("usage_map.png", width=600, height=600, res=120)
 print(m)
+dev.off()
+
+png("usage_map_recent.png", width=600, height=600, res=120)
+print(m.recent)
 dev.off()
 
 #-------------------------------------
@@ -112,5 +147,8 @@ system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninj
 system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/registrations.png ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
 
 system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/usage_map.png ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
+
+system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" /home/natalie/windninja_mobile/usage_map_recent.png ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/ninjaonline/ninjaoutput/mobile")
+
 
 
