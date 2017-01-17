@@ -126,7 +126,7 @@ m.recent <- ggmap(map) +
             alpha=0.5, size = 2) + xlab("") + ylab("") +
             scale_color_manual(values=c("blue", "purple", "red"),labels=c("< 1 week", "< 2 days", "< 24 hrs")) 
 
-m.recent <- m.recent + theme(legend.position=c(0.8,0.9)) + labs(color="Time Since Run")
+m.recent <- m.recent + theme(legend.position=c(0.8,0.85)) + labs(color="Time Since Run")
 
 #write the image to disk
 png("usage_map.png", width=600, height=600, res=120)
