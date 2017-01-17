@@ -11,20 +11,19 @@ system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" ubuntu@ec2-52-222-19-7
 system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/logs/registrations.log /home/natalie/windninja_mobile/registrations.log")
 
 #rm spaces from email addresses
-system("sed -ie 's/ @/@/g' registrations.log")
+system("sed -i 's/ @/@/g' registrations.log")
 
 #----------------------------------
 # Track users
 #----------------------------------
 
 d<-read.table('registrations.log', skip=1, stringsAsFactors=FALSE)
-dd<-subset(d, select=c(V6, V7, V8, V9))
-datetime<-with(dd, paste0(V6, " ", V7, " ",  V8, " ", "2016"))
-ddd<-as.data.frame(cbind(datetime,as.numeric(row.names(d))), stringsAsFactors=FALSE)
-colnames(ddd)<-c("datetime","install") 
-ddd[,"datetime"] <- as.POSIXct(strptime(ddd[,"datetime"], '%b %d %H:%M %Y'))
+dd<-subset(d, select=c(V6))
+dd<-as.data.frame(cbind(dd,as.numeric(row.names(dd))), stringsAsFactors=FALSE)
+colnames(dd)<-c("datetime","install") 
+dd[,"datetime"] <- as.POSIXct(strptime(dd[,"datetime"], '%Y-%m-%d'), tz='UTC')
 
-d.sub<-subset(ddd, subset=(datetime > as.POSIXct(strptime("2016-07-27 00:00:00", '%Y-%m-%d %H:%M:%S')))) 
+d.sub<-subset(dd, subset=(datetime > as.POSIXct(strptime("2016-07-27 00:00:00", '%Y-%m-%d %H:%M:%S')))) 
 d.sub$install<-as.numeric(d.sub$install)
 
 p<-ggplot(d.sub, aes(x=datetime, y=install)) +
