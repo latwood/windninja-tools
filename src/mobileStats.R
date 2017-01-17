@@ -115,15 +115,26 @@ s.sub.lastTwoDays<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units
 hoursSince<-48
 s.sub.lastTwoDays<-cbind(s.sub.lastTwoDays,hoursSince)
 s.sub.lastWeek<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 168 &
-                                      !(s.sub$date %in% s.sub.lastTwoDays$date)))
+                                      !(s.sub$date %in% s.sub.lastTwoDays$date) &
+                                      !(s.sub$date %in% s.sub.lastDay$date)))
 hoursSince<-168
 s.sub.lastWeek<-cbind(s.sub.lastWeek,hoursSince)
-
 s.sub.recent<-rbind(s.sub.lastDay,s.sub.lastTwoDays,s.sub.lastWeek)
+
+
+
+
+#s.sub.recent<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 168))
+#hoursSince<-168
+#s.sub.recent<-cbind(s.sub.recent,hoursSince)
+#m.recent <- ggmap(map) + 
+#            geom_point(data=s.sub.recent, aes(x=xmin, y=ymin, color=as.factor(hoursSince)),
+#            alpha=1, size = 1.5) + xlab("") + ylab("") +
+#            scale_color_manual(values=c("blue"),labels=c("< 1 week")) 
 
 m.recent <- ggmap(map) + 
             geom_point(data=s.sub.recent, aes(x=xmin, y=ymin, color=as.factor(hoursSince)),
-            alpha=0.5, size = 2) + xlab("") + ylab("") +
+            alpha=1, size = 1.5) + xlab("") + ylab("") +
             scale_color_manual(values=c("blue", "purple", "red"),labels=c("< 1 week", "< 2 days", "< 24 hrs")) 
 
 m.recent <- m.recent + theme(legend.position=c(0.8,0.85)) + labs(color="Time Since Run")
