@@ -2,6 +2,7 @@
 
 library(ggplot2)
 library(ggmap)
+library(scales)
 
 #----------------------------------
 # Update local log files
@@ -31,7 +32,7 @@ p<-ggplot(d.sub, aes(x=datetime, y=install)) +
     geom_line() +
     xlab("") + ylab("") +
     theme_bw() +
-    ggtitle("WindNinja-Mobile Installs")
+    ggtitle("Registered Users")
 
 #p<- p + annotate(geom="text", x=as.POSIXct(strptime("2016-07-27 22:00:00", '%Y-%m-%d %H:%M:%S')), y=100, label="Total runs: 78", color="blue")
 #p<- p + annotate(geom="text", x=as.POSIXct(strptime("2016-07-27 22:00:00", '%Y-%m-%d %H:%M:%S')), y=95, label="Bug reports: 0", color="blue")
@@ -79,8 +80,9 @@ p<-ggplot(s.sub, aes(date, fill=forecast)) +
     geom_bar() +
     labs(fill="") +
     xlab("Time") + ylab("Simulations") +
+    scale_x_datetime(breaks = date_breaks("1 month"), labels=date_format("%b")) +
     theme_bw() +
-    ggtitle("WindNinja-Mobile Simulations")
+    ggtitle("Daily Simulations")
 
 p<- p + theme(legend.position=c(0.9,0.9))
 
@@ -100,7 +102,7 @@ s.sub$xmin<-as.numeric(s.sub$xmin)
 #map<-get_map(location = c(lon = -113.04, lat = 43.38), zoom = 3, maptype = 'terrain')
 map<-get_map(location = c(lon = -97.04, lat = 42.38), zoom = 4, maptype = 'terrain')
 
-m <- ggmap(map) + geom_point(data=s.sub, aes(x=xmin, y=ymin), alpha=0.4, colour = "red", size = 1) +
+m <- ggmap(map) + geom_point(data=s.sub, aes(x=xmin, y=ymin), alpha=0.3, colour = "red", size = 0.8) +
         xlab("") + ylab("") 
 
 #subset runs done within some recent times
@@ -135,7 +137,7 @@ s.sub.recent<-rbind(s.sub.lastDay,s.sub.lastTwoDays,s.sub.lastWeek)
 m.recent <- ggmap(map) + 
             geom_point(data=s.sub.recent, aes(x=xmin, y=ymin, color=as.factor(hoursSince)),
             alpha=1, size = 1.5) + xlab("") + ylab("") +
-            scale_color_manual(values=c("blue", "purple", "red"),labels=c("< 1 week", "< 2 days", "< 24 hrs")) 
+            scale_color_manual(values=c("blue", "orange", "red"),labels=c("< 1 week", "< 2 days", "< 24 hrs")) 
 
 m.recent <- m.recent + theme(legend.position=c(0.8,0.85)) + labs(color="Time Since Run")
 
