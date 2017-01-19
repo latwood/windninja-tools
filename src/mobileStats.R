@@ -12,13 +12,13 @@ system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" ubuntu@ec2-52-222-19-7
 system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" ubuntu@ec2-52-222-19-7.us-gov-west-1.compute.amazonaws.com:/home/ubuntu/logs/registrations.log /home/natalie/windninja_mobile/registrations.log")
 
 #rm spaces from email addresses
-system("sed -i 's/ @/@/g' registrations.log")
+system("sed -i 's/ @/@/g' /home/natalie/windninja_mobile/registrations.log")
 
 #----------------------------------
 # Track users
 #----------------------------------
 
-d<-read.table('registrations.log', skip=1, stringsAsFactors=FALSE)
+d<-read.table('/home/natalie/windninja_mobile/registrations.log', skip=1, stringsAsFactors=FALSE)
 dd<-subset(d, select=c(V6))
 dd<-as.data.frame(cbind(dd,as.numeric(row.names(dd))), stringsAsFactors=FALSE)
 colnames(dd)<-c("datetime","install") 
@@ -31,8 +31,8 @@ p<-ggplot(d.sub, aes(x=datetime, y=install)) +
     geom_point(shape=19, size=1.5, alpha = 1) +
     geom_line() +
     xlab("") + ylab("") +
-    theme_bw() +
-    ggtitle("Registered Users")
+    theme_bw() #+
+    #ggtitle("Registered Users")
 
 #p<- p + annotate(geom="text", x=as.POSIXct(strptime("2016-07-27 22:00:00", '%Y-%m-%d %H:%M:%S')), y=100, label="Total runs: 78", color="blue")
 #p<- p + annotate(geom="text", x=as.POSIXct(strptime("2016-07-27 22:00:00", '%Y-%m-%d %H:%M:%S')), y=95, label="Bug reports: 0", color="blue")
@@ -47,7 +47,7 @@ dev.off()
 # Track simulations
 #----------------------------------
 
-s<-read.table('stats.log', stringsAsFactors=FALSE)
+s<-read.table('/home/natalie/windninja_mobile/stats.log', stringsAsFactors=FALSE)
 ss<-subset(s, select=c(V2,V16,V19,V22,V25,V28,V40,V48))
 colnames(ss)<-c("user","xmax","xmin","ymax","ymin","forecast","datetime","job_id") 
 ss$runs<-as.numeric(row.names(ss))
@@ -81,8 +81,8 @@ p<-ggplot(s.sub, aes(date, fill=forecast)) +
     labs(fill="") +
     xlab("Time") + ylab("Simulations") +
     scale_x_datetime(breaks = date_breaks("1 month"), labels=date_format("%b")) +
-    theme_bw() +
-    ggtitle("Daily Simulations")
+    theme_bw() #+
+    #ggtitle("Daily Simulations")
 
 p<- p + theme(legend.position=c(0.9,0.9))
 
