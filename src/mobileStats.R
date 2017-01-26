@@ -69,24 +69,14 @@ s.sub<-subset(ss, subset=(!(user %in% c("nwagenbrenner@gmail.com",
                                       "tweber@yourdatasmarter.com",
                                       "fspataro@yourdatasmarter.com"))))
 
-#p<-ggplot(s.sub, aes(x=datetime, y=runs)) +
-#    geom_point(shape=19, size=1.5, alpha = 1) +
-#    geom_line() +
-#    xlab("Time") + ylab("Simulations") +
-#    theme_bw() +
-#    ggtitle("WindNinja-Mobile Simulations")
-
 p<-ggplot(s.sub, aes(date, fill=forecast)) +
     geom_bar() +
     labs(fill="") +
     xlab("Time") + ylab("Simulations") +
     scale_x_datetime(breaks = date_breaks("1 month"), labels=date_format("%b")) +
-    theme_bw() #+
-    #ggtitle("Daily Simulations")
+    theme_bw() 
 
 p<- p + theme(legend.position=c(0.9,0.9))
-
-#p<-p + theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
 #write the image to disk
 png("simulations.png", width=964, height=480, res=72)
@@ -111,20 +101,25 @@ attr(currentTime, "tzone") <- "UTC"
 
 s.sub.lastDay<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 24))
 hoursSince<-24
-s.sub.lastDay<-cbind(s.sub.lastDay,hoursSince)
+try(
+    s.sub.lastDay<-cbind(s.sub.lastDay,hoursSince)
+)
 s.sub.lastTwoDays<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 48 &
                                          !(s.sub$date %in% s.sub.lastDay$date)))
 hoursSince<-48
-s.sub.lastTwoDays<-cbind(s.sub.lastTwoDays,hoursSince)
+try(
+    s.sub.lastTwoDays<-cbind(s.sub.lastTwoDays,hoursSince)
+)
 s.sub.lastWeek<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 168 &
                                       !(s.sub$date %in% s.sub.lastTwoDays$date) &
                                       !(s.sub$date %in% s.sub.lastDay$date)))
 hoursSince<-168
-s.sub.lastWeek<-cbind(s.sub.lastWeek,hoursSince)
-s.sub.recent<-rbind(s.sub.lastDay,s.sub.lastTwoDays,s.sub.lastWeek)
-
-
-
+try(
+    s.sub.lastWeek<-cbind(s.sub.lastWeek,hoursSince)
+)
+try(
+    s.sub.recent<-rbind(s.sub.lastDay,s.sub.lastTwoDays,s.sub.lastWeek)
+)
 
 #s.sub.recent<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 168))
 #hoursSince<-168
