@@ -30,6 +30,7 @@ d.sub$install<-as.numeric(d.sub$install)
 p<-ggplot(d.sub, aes(x=datetime, y=install)) +
     geom_point(shape=19, size=1.5, alpha = 1) +
     geom_line() +
+    scale_x_datetime(breaks = date_breaks("1 month"), labels=date_format("%b")) +
     xlab("") + ylab("") +
     theme_bw() #+
     #ggtitle("Registered Users")
@@ -39,7 +40,7 @@ p<-ggplot(d.sub, aes(x=datetime, y=install)) +
 #p<- p + annotate(geom="text", x=as.POSIXct(strptime("2016-07-27 22:00:00", '%Y-%m-%d %H:%M:%S')), y=90, label="Other feedback: 3", color="blue")
 
 #write the image to disk
-png("registrations.png", width=600, height=600, res=120)
+png("/home/natalie/windninja_mobile/registrations.png", width=600, height=600, res=120)
 print(p)
 dev.off()
 
@@ -79,7 +80,7 @@ p<-ggplot(s.sub, aes(date, fill=forecast)) +
 p<- p + theme(legend.position=c(0.9,0.9))
 
 #write the image to disk
-png("simulations.png", width=964, height=480, res=72)
+png("/home/natalie/windninja_mobile/simulations.png", width=964, height=480, res=72)
 print(p)
 dev.off()
 
@@ -99,18 +100,18 @@ m <- ggmap(map) + geom_point(data=s.sub, aes(x=xmin, y=ymin), alpha=0.3, colour 
 currentTime<-Sys.time()
 attr(currentTime, "tzone") <- "UTC"
 
-s.sub.lastDay<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 24))
+s.sub.lastDay<-subset(s.sub, subset=(difftime(currentTime, s.sub$datetime, units="hours") < 24))
 hoursSince<-24
 try(
     s.sub.lastDay<-cbind(s.sub.lastDay,hoursSince)
 )
-s.sub.lastTwoDays<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 48 &
+s.sub.lastTwoDays<-subset(s.sub, subset=(difftime(currentTime, s.sub$datetime, units="hours") < 48 &
                                          !(s.sub$date %in% s.sub.lastDay$date)))
 hoursSince<-48
 try(
     s.sub.lastTwoDays<-cbind(s.sub.lastTwoDays,hoursSince)
 )
-s.sub.lastWeek<-subset(s.sub, subset=(difftime(currentTime, s.sub$date, units="hours") < 168 &
+s.sub.lastWeek<-subset(s.sub, subset=(difftime(currentTime, s.sub$datetime, units="hours") < 168 &
                                       !(s.sub$date %in% s.sub.lastTwoDays$date) &
                                       !(s.sub$date %in% s.sub.lastDay$date)))
 hoursSince<-168
@@ -132,16 +133,16 @@ try(
 m.recent <- ggmap(map) + 
             geom_point(data=s.sub.recent, aes(x=xmin, y=ymin, color=as.factor(hoursSince)),
             alpha=1, size = 1.5) + xlab("") + ylab("") +
-            scale_color_manual(values=c("blue", "orange", "red"),labels=c("< 1 week", "< 2 days", "< 24 hrs")) 
+            scale_color_manual(values=c("red", "orange", "blue"),labels=c("< 24 hrs", "< 2 days", "< 1 week")) 
 
 m.recent <- m.recent + theme(legend.position=c(0.8,0.85)) + labs(color="Time Since Run")
 
 #write the image to disk
-png("usage_map.png", width=600, height=600, res=120)
+png("/home/natalie/windninja_mobile/usage_map.png", width=600, height=600, res=120)
 print(m)
 dev.off()
 
-png("usage_map_recent.png", width=600, height=600, res=120)
+png("/home/natalie/windninja_mobile/usage_map_recent.png", width=600, height=600, res=120)
 print(m.recent)
 dev.off()
 
