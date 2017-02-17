@@ -4,6 +4,11 @@ library(ggplot2)
 library(ggmap)
 library(scales)
 
+currentTime<-Sys.time()
+attr(currentTime, "tzone") <- "UTC"
+currentTimeMT<-format(currentTime, tz="America/Denver",usetz=TRUE)
+currentTimeMT<-strftime(currentTimeMT, "%d-%b-%Y %H:%M", usetz=TRUE)
+
 #----------------------------------
 # Update local log files
 #----------------------------------
@@ -32,6 +37,7 @@ p<-ggplot(d.sub, aes(x=datetime, y=install)) +
     geom_line() +
     scale_x_datetime(breaks = date_breaks("1 month"), labels=date_format("%b")) +
     xlab("") + ylab("") +
+    annotate("text", size=2.5, y=max(d.sub$install), x=mean(d.sub$datetime), label=paste("Updated:", currentTimeMT)) +
     theme_bw() #+
     #ggtitle("Registered Users")
 
@@ -71,10 +77,11 @@ s.sub<-subset(ss, subset=(!(user %in% c("nwagenbrenner@gmail.com",
                                       "fspataro@yourdatasmarter.com"))))
 
 p<-ggplot(s.sub, aes(date, fill=forecast)) +
-    geom_bar() +
+    geom_bar(width=86400) +
     labs(fill="") +
     xlab("Time") + ylab("Simulations") +
     scale_x_datetime(breaks = date_breaks("1 month"), labels=date_format("%b")) +
+    annotate("text", y=Inf, x=mean(d.sub$datetime), vjust=3, label=paste("Updated:", currentTimeMT)) +
     theme_bw() 
 
 p<- p + theme(legend.position=c(0.9,0.9))
@@ -94,12 +101,10 @@ s.sub$xmin<-as.numeric(s.sub$xmin)
 map<-get_map(location = c(lon = -97.04, lat = 42.38), zoom = 4, maptype = 'terrain')
 
 m <- ggmap(map) + geom_point(data=s.sub, aes(x=xmin, y=ymin), alpha=0.3, colour = "red", size = 0.8) +
-        xlab("") + ylab("") 
+        xlab("") + ylab("") +
+     annotate("text", size=2.5, y=59, x=-114, label=paste("Updated:", currentTimeMT)) 
 
 #subset runs done within some recent times
-currentTime<-Sys.time()
-attr(currentTime, "tzone") <- "UTC"
-
 s.sub.lastDay<-subset(s.sub, subset=(difftime(currentTime, s.sub$datetime, units="hours") < 24))
 hoursSince<-24
 try(
@@ -153,7 +158,8 @@ if(length(s.sub.lastWeek$datetime > 1))
 m.recent <- ggmap(map) + 
             geom_point(data=s.sub.recent, aes(x=xmin, y=ymin, color=as.factor(hoursSince)),
             alpha=1, size = 1.5) + xlab("") + ylab("") +
-            scale_color_manual(values=values, labels=labels) 
+            scale_color_manual(values=values, labels=labels) +
+            annotate("text", size=2.5, y=59, x=-114, label=paste("Updated:", currentTimeMT)) 
             #scale_color_gradient(low="red", high="darkblue", limits=c(0,120))
 
 m.recent <- m.recent + theme(legend.position=c(0.8,0.85)) + labs(color="Time Since Run")
