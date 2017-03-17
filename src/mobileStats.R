@@ -18,6 +18,7 @@ system("scp -i \"/home/natalie/.ssh/WindNinjaMobile.pem\" ubuntu@ec2-52-222-19-7
 
 #rm spaces from email addresses
 system("sed -i 's/ @/@/g' /home/natalie/windninja_mobile/registrations.log")
+system("sed -i 's/@*.com //g' /home/natalie/windninja_mobile/registrations.log") 
 
 #----------------------------------
 # Track users
