@@ -1,8 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys
 import os
 import zipfile
+
+def Usage():
+    print ('image2goverlay.py wkt_prj_file src_file dst_file image_file')
+    print ('Note: image_file must be in WGS84 coords (EPSG 4326); no coordinate transformation will be performed')
+    sys.exit(1)
 
 try:
     from osgeo import gdal, osr
@@ -12,13 +17,8 @@ except ImportError:
     try:
         import gdal
     except ImportError:
-        print 'GDAL Python bindings are required'
+        print ('GDAL Python bindings are required')
         Usage()
-
-def Usage():
-    print 'image2goverlay.py wkt_prj_file src_file dst_file image_file'
-    print 'Note: image_file must be in WGS84 coords; no coordinate transformation will be performed'
-    sys.exit(1)
 
 srcFile = None
 dstFile = None
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         i = i + 1
 
     if len(argv) < 5:
-        print "Not enough args..."
+        print ("Not enough args...")
         Usage()
 
     kml_file = 'doc.kml'
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     fin.close()
 
     if src_wkt == '':
-        print 'Cannot find spatial reference in input file'
+        print ('Cannot find spatial reference in input file')
         Usage()
 
     #set target osr
